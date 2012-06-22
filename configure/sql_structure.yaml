@@ -1,0 +1,9 @@
+less:
+	singular: less
+	plural: styles
+	fields:
+		+slug: string
+		uncompiled: text
+		compiled: text
+	extensions:
+		- taxonomy
