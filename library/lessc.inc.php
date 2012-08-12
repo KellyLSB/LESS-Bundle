@@ -1,6 +1,9 @@
 <?php
 
 namespace Bundles\LESS;
+use Exception;
+use StdClass;
+use e;
 
 /**
  * lessphp v0.3.4-2
