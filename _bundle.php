@@ -10,11 +10,20 @@ use e;
  */
 class Bundle extends SQLBundle {
 
-	public function __callBundle($file) {
-		require_once(__DIR__ . '/library/lessc.inc.php');
-		$cfile = e::$cache->path('less') . '/' . md5($file) . '.css';
-		lessc::ccompile($file, $cfile);
-		return $cfile;
+	public function __callBundle($file, $contents = false) {
+		// Get the cached filename
+		$cacheFile = e::$cache->path('less') . '/' . md5($file) . '.css';
+
+		/**
+		 * If the file is newer re-cache it
+		 */
+		if(filemtime($file) > filemtime($cacheFile)) {
+			require_once(__DIR__ . '/library/lessc.inc.php');
+			lessc::ccompile($file, $cacheFile);
+		}
+
+		// Return the file contents
+		return $contents ? file_get_contents($cacheFile) : $cacheFile;
 	}
 
 	/**
@@ -22,14 +31,27 @@ class Bundle extends SQLBundle {
 	 * @author Kelly Becker
 	 */
 	public function string($string = false) {
-		require_once(__DIR__ . '/library/lessc.inc.php');
 		if(empty($string)) return false;
+
+		// Load in the compiler
+		require_once(__DIR__ . '/library/lessc.inc.php');
 
 		/**
 		 * Compile a string
 		 * NOTE: We are not instantiating the class constructor
 		 */
 		return lessc::scompile($string)->parse();
+	}
+
+	/**
+	 * Compile a LESS file
+	 * @author Kelly Becker
+	 */
+	public function file($file = fale) {
+		if(empty($file)) return false;
+
+		// Compile the file
+		return $this->__callBundle($file, true);
 	}
 
 	/**
